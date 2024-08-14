@@ -1,7 +1,7 @@
 "use client";
 
 import Link from 'next/link';
-import { useAuth } from '@/context/authContext'; // Import the useAuth hook
+import { useAuth } from '@/context/AuthContext'; // Import the useAuth hook
 import { supabase } from '@/lib/supabaseClient';
 import { useRouter } from 'next/navigation';
 

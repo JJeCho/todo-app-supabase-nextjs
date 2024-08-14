@@ -13,18 +13,20 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const fetchSession = async () => {
       const { data } = await supabase.auth.getSession();
       setSession(data.session);
+      console.log("Initial session:", data.session);
     };
 
     fetchSession();
 
     const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
+      console.log("Session changed:", session);
+      setSession(session? session : null);
     });
 
     return () => {
       authListener.subscription.unsubscribe();
     };
-  }, []);
+  }, []); // Empty dependency array ensures this runs once on mount
 
   return (
     <AuthContext.Provider value={session}>

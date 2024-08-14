@@ -1,7 +1,10 @@
+"use client";
+
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabaseClient';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/context/AuthContext';
 
-// Define a type for the tasks
 type Task = {
   id: string;
   task: string;
@@ -9,10 +12,17 @@ type Task = {
 };
 
 export default function Todo() {
+  const session = useAuth();
+  const router = useRouter();
   const [tasks, setTasks] = useState<Task[]>([]);
   const [newTask, setNewTask] = useState('');
 
   useEffect(() => {
+    if (!session) {
+      router.push('/login');
+      return;
+    }
+
     const fetchTasks = async () => {
       const { data, error } = await supabase
         .from('todos')
@@ -24,19 +34,12 @@ export default function Todo() {
     };
 
     fetchTasks();
-  }, []);
+  }, [session, router]);
 
   const addTask = async () => {
-    const { data: userData, error: userError } = await supabase.auth.getUser();
-
-    if (userError) {
-      console.error(userError);
-      return;
-    }
-
     const { data, error } = await supabase
       .from('todos')
-      .insert([{ task: newTask, user_id: userData?.user?.id }]);
+      .insert([{ task: newTask, user_id: session!.user.id }]);
 
     if (error) console.error(error);
     else setTasks([...tasks, ...(data || [])]);
